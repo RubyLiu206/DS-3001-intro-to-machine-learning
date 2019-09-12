@@ -5,7 +5,24 @@ Created on Mon Sep  9 16:58:35 2019
 @author: ruby_
 """
 
+#lecture
+"""
+formulate a proble,
+gather dara
+explore data
+determine a model
+evaluate findings
+
+training set
+validation set
+testing set
+
+
+"""
+
 import numpy as np
+import matplotlib.pyplot as plt
+import math
 """
 question one
 split the training data (i.e. spam train.txt) into a training and validate set, 
@@ -59,7 +76,7 @@ for word in vocabulary_list:
     if word in counts:
         counts[word] += 1
     else:
-        counts[word] = 0
+        counts[word] = 1
 
 final_vocabulary_list = []
 for word in counts:
@@ -90,11 +107,11 @@ return :
     k: the number of updates (mistakes) performed
     iter: the number of passes through the data, respectively
 """
-def perceptron_train(data):
+def perceptron_train(data,data_classification):
     
     # seprate the classification from each data for further use
     # and the vector is already delete the first space which is label
-    classifications = data.pop(0)
+    classifications = data_classification
     # change the label from 0 to -1, according to the instructor
     classifications = ['-1' if x=='0' else x for x in classifications]
     #print(classifications)
@@ -106,7 +123,7 @@ def perceptron_train(data):
     # need a flag for the algorithm to stop
     finish = False
 
-    while not finish:
+    while finish is False:
         finish = True
         # data = [[],[],...,[],[]]
         for t,vector in enumerate(data):
@@ -127,15 +144,15 @@ def perceptron_train(data):
                 k = k + 1 # mistake count +1
                 finish = False # till done equal to true, stop 
         iter = iter + 1
+    print(iter)
     return w,k,iter
 
     
     
     
-def perceptron_test(w, data):
+def perceptron_test(w, data,data_classification):
     
-    # seprate the classification from each data for further use
-    classifications = data.pop(0)
+    classifications = data_classification
     prediction_label = []
     count = 0
  
@@ -153,28 +170,33 @@ def perceptron_test(w, data):
     combine_label_classifications = zip(prediction_label,classifications)
     for i,j in combine_label_classifications:
         if i == j:
-                count += 1
+            count += 1
     # count is the number which is classified right
-    return (num-count)/num
+    return (num - count)/num
 
 
 """
 question four
 Train the linear classiﬁer using your training set. 
-Test your implementation of perceptron test by running it with the learned parameters and the training data, making sure that the training error is zero. 
+Test your implementation of perceptron test by running it with the learned parameters and the training data, 
+making sure that the training error is zero. 
 Next, classify the emails in your validation set.
 """
-w,k,iter = perceptron_train(feature_vectors)
-error = perceptron_test(w,feature_vectors)
+
+# adding bach the classification in the first space
+feature_vectors = []
+feature_vectors = [[1 if word in vector else 0 for word in final_vocabulary_list] for vector in training_set]
+
+w,k,iter = perceptron_train(feature_vectors,training_data_classifications)
+error = perceptron_test(w,feature_vectors,training_data_classifications)
 print("Mistakes made while training the training data: ",k)
 print("Training error when testing the w and training data: ",error)
 
 # manage validation data same with question two
 feature_vector_validation = []
 feature_vector_validation = [[1 if word in vector else 0 for word in final_vocabulary_list] for vector in validation_set]
-feature_vector_validation.insert(0,validation_data_classifications)
 # using the same w for the validation data
-error = perceptron_test(w,feature_vector_validation)
+error = perceptron_test(w,feature_vector_validation,validation_data_classifications)
 print("Validation error with the former w and validation_data_classification: ",error)
 
 
@@ -184,8 +206,11 @@ question five:
 output the 15 words with the most positive weights.
 each time get the maximum weights and pop that out the w list
 """
+
 positive_weights = []
 for i in range(0,15):
+    # after training with 4000 dataframe we got the final w, which training error is 0.0
+    # pop each time the max weights, get the index of each time 
     w_max_index = w.index(max(w)) 
     positive_weights.append(final_vocabulary_list.pop(w.pop(w_max_index))) 
 print("the most 15 positive weights words is", positive_weights)
@@ -196,8 +221,8 @@ question six:
 Implement the averaged perceptron algorithm,returns the average of all weight vectors considered during the algorithm. 
 Averaging reduces the variance between the diﬀerent vectors
 """
-def average_perceptron_train(data):
-    classifications = data.pop(0)
+def average_perceptron_train(data,data_calssification):
+    classifications = data_calssification
     classifications = ['-1' if x=='0' else x for x in classifications]
 
     w = [0]*len(data[0])
@@ -225,29 +250,185 @@ def average_perceptron_train(data):
         iter = iter + 1
 
     for each_w in average_w:
-        for i in range(0,len(each_w)): 
+        for i in range(0,len(each_w)):
             w[i] += each_w[i]
             w[i] = w[i]/len(average_w)
      
     return w,k,iter
-
-
 feature_vectors = []
 feature_vectors = [[1 if word in vector else 0 for word in final_vocabulary_list] for vector in training_set]
-# adding bach the classification in the first space
-feature_vectors.insert(0,training_data_classifications)
-w,k,iter = average_perceptron_train(feature_vectors)
-error_average_train = perceptron_test(w,feature_vectors)
-print("Nistakes made while training the training data with the average perceptron algoright:", k)
-print("Training error when teating the w and training data:", error_average_train)
 
+w,k,iter = average_perceptron_train(feature_vectors,training_data_classifications)
+error_average_train = perceptron_test(w,feature_vectors,training_data_classifications)
+print("Mistakes made while training the training data with the average perceptron algoright:", k)
+print("Training error when teating the w and training data:", error_average_train)
+print("the number passes throught:", iter)
+"""
 feature_vectors_valudation = []
 feature_vectors_validation = [[1 if word in vector else 0 for word in final_vocabulary_list] for vector in validation_set]
-feature_vectors_validation.insert(0,validation_data_classifications)
-w,k,iter = average_perceptron_train(feature_vectors_validation)
-error_average_validate = perceptron_test(w,feature_vectors_validation)
-print("Nistakes made while training the training data with the average perceptron algoright:", k)
-print("Training error when teating the w and training data:", error_average_validate)
+w,k,iter = average_perceptron_train(feature_vectors_validation,validation_data_classifications)
+error_average_validate = perceptron_test(w,feature_vectors_validation,validation_data_classifications)
+print("Mistakes made while training the training data with the average perceptron algoright:", k)
+print("Validation error with the former w and validation_data_classification: ", error_average_validate)
+print("the number passes throught:", iter)
+"""
+
+"""
+question severn
+Add an argument to both the perceptron and the averaged perceptron 
+that controls the maximum number of passes over the data. 
+This is an important hyperparameter because for large training sets, 
+the perceptron algorithm can take many iterations just changing a small subset of the point --
+leading to overfitting.
+"""
+#横坐标是个数，纵坐标是error， 越多的训练，erro越小，然后画图，然后去看几次方的函数最合适
+#第七问只是针对training set，然后画图，然后来看多少的data 是最低的error
+def perceptron_train_with_argument(data,data_classification,max_iterations):
+    # seprate the classification from each data for further use
+    # and the vector is already delete the first space which is label
+    classifications = data_classification
+    # change the label from 0 to -1, according to the instructor
+    classifications = ['-1' if x=='0' else x for x in classifications]
+    #print(classifications)
+    # return items
+    w = [0]*len(data[0])  #weight
+    k = 0                 #number of mistakes
+    iter = 0              #update
+    
+
+    # run 10 rounds and whole 40000 passes
+    while iter < max_iterations:
+    # data = [[],[],...,[],[]]
+        for t,vector in enumerate(data):
+            activation = 0
+            # vector = [,...,]
+            for i in range(0,len(vector)):
+                #activation function
+                #if activation >= 0 then return +1, else return -1
+                activation += w[i]*vector[i]
+            if activation >= 0:
+                predict = '1'
+            else:
+                predict = '-1'
+            if predict != classifications[t]:
+                for i in range(0,len(vector)):
+                    # update the weight
+                    w[i] = w[i] + (vector[i]*int(classifications[t]))
+                k = k + 1 # mistake count +1
+        iter = iter + 1
+        
+    return w,k,iter
 
 
+    
+def perceptron_train_averaged_with_argument(data,data_classification,max_iterations):
+    classifications = data.pop(0)
+    classifications = ['-1' if x=='0' else x for x in classifications]
 
+    w = [0]*len(data[0])
+    average_w = []
+    k = 0
+    iter = 0
+
+    while iter < max_iterations:
+        for t,vector in enumerate(data):
+            activation = 0
+            for i in range(0,len(vector)):
+                activation += w[i]*vector[i]
+            if activation >= 0:
+                predict = '1'
+            else:
+                predict = '-1'
+            if predict != classifications[t]:
+                for i in range(0,len(vector)):
+                    w[i] = w[i] + (vector[i]*int(classifications[t]))
+                k = k + 1
+        average_w.append(w)
+        iter = iter + 1
+
+    for each_w in average_w:
+        for i in range(0,len(each_w)):
+            w[i] += each_w[i]
+            w[i] = w[i]/len(average_w)
+
+    return w,k,iter
+
+def train_with_argument():
+ 
+    for i in range(1,12):
+        feature_vectors = []
+        feature_vectors = [[1 if word in vector else 0 for word in final_vocabulary_list] for vector in training_set]
+        # adding bach the classification in the first space
+        w,k,iter = perceptron_train_with_argument(feature_vectors,training_data_classifications,i)
+        error = perceptron_test(w,feature_vectors,training_data_classifications)
+        print("error from training set:", error)
+        print("---")
+        feature_vector_validation = []
+        feature_vector_validation = [[1 if word in vector else 0 for word in final_vocabulary_list] for vector in validation_set]
+        # using the same w for the validation data
+        error = perceptron_test(w,feature_vector_validation,validation_data_classifications)
+        print("Mistakes made while training the training data with the perceptron algorighm:", k)
+        print("Validation error with the former w and validation_data_classification: ",error)
+        print("the number passes throught:", iter)
+        print("---")
+        feature_vectors = []
+        feature_vectors = [[1 if word in vector else 0 for word in final_vocabulary_list] for vector in training_set]
+        w,k,iter = perceptron_train_averaged_with_argument(feature_vectors,training_data_classification,i)
+        error = percetron_test(w,feature_vectors, training_data_classification)
+        print("Mistakes made while training the training data with the average perceptron algorighm:", k)
+        print("Validation error with the former w and validation_data_classification: ",error)
+        print("the number passes throught:", iter)
+        print("------")
+        """
+        error from training set: 0.027
+        Mistakes made while training the training data with the perceptron algoright: 217
+        Validation error with the former w and validation_data_classification:  0.039
+        the number passes throught: 1
+        error from training set: 0.0135
+        Mistakes made while training the training data with the perceptron algoright: 291
+        Validation error with the former w and validation_data_classification:  0.025
+        the number passes throught: 2
+        error from training set: 0.01775
+        Mistakes made while training the training data with the perceptron algoright: 333
+        Validation error with the former w and validation_data_classification:  0.037
+        the number passes throught: 3
+        error from training set: 0.005
+        Mistakes made while training the training data with the perceptron algoright: 368
+        Validation error with the former w and validation_data_classification:  0.019
+        the number passes throught: 4
+        error from training set: 0.00275
+        Mistakes made while training the training data with the perceptron algoright: 387
+        Validation error with the former w and validation_data_classification:  0.018
+        the number passes throught: 5
+        error from training set: 0.0245
+        Mistakes made while training the training data with the perceptron algoright: 399
+        Validation error with the former w and validation_data_classification:  0.054
+        the number passes throught: 6
+        error from training set: 0.00175
+        Mistakes made while training the training data with the perceptron algoright: 418
+        Validation error with the former w and validation_data_classification:  0.02
+        the number passes throught: 7
+        error from training set: 0.00125
+        Mistakes made while training the training data with the perceptron algoright: 431
+        Validation error with the former w and validation_data_classification:  0.019
+        the number passes throught: 8
+        error from training set: 0.001
+        Mistakes made while training the training data with the perceptron algoright: 441
+        Validation error with the former w and validation_data_classification:  0.017
+        the number passes throught: 9
+        error from training set: 0.001
+        Mistakes made while training the training data with the perceptron algoright: 444
+        Validation error with the former w and validation_data_classification:  0.02
+        the number passes throught: 10
+        error from training set: 0.0
+        Mistakes made while training the training data with the perceptron algoright: 448
+        Validation error with the former w and validation_data_classification:  0.018
+        the number passes throught: 11
+        """
+print("------")
+print(math.ceil(len(feature_vectors)/500) - 1)
+#train_with_argument()
+#plot
+#第八问，通过最低的那个training set，的那个数值去做validation set
+    
+    
