@@ -24,6 +24,8 @@ import matplotlib.pyplot as plt
 import math
 from collections import Counter
 import numpy as np 
+import matplotlib as mpl
+
 
 """
 question one
@@ -249,7 +251,7 @@ def average_perceptron_train(data,data_calssification):
     iter = 0
     done = False
     cache_w = [0]*len(data[0])
-    count = 0
+    count = 1
     while not done:
         done = True
         for t,vector in enumerate(data):
@@ -329,7 +331,7 @@ def perceptron_train_averaged_with_argument(data,data_classification,max_iterati
     k = 0
     iter = 0
     cache_w = [0]*len(data[0])
-    count = 0
+    count = 1
     while iter < max_iterations:
         for t,vector in enumerate(data):
             activation = 0
@@ -379,14 +381,49 @@ print("------")
 print(math.ceil(len(feature_vectors)/500) - 1)
 train_with_argument(feature_vectors,training_data_classifications,feature_vector_validation,validation_data_classifications)
 
-error= [[0.0225, 0.03, 0.0225, 0.03],[0.01075, 0.023, 0.01075, 0.023],[0.00525, 0.022, 0.00575, 0.022],
-    [0.00225, 0.019, 0.00225, 0.019],[0.005, 0.023, 0.00475, 0.023],[0.001, 0.017, 0.001, 0.016],
-    [0.00025, 0.02, 0.00025, 0.019],[0.00025, 0.02, 0.00025, 0.02],[0.00025, 0.014, 0.00025, 0.014],
-    [0.0, 0.013, 0.0, 0.013],[0.0, 0.013, 0.0, 0.013]]
-update_error = [[0.0225, 0.03, 0.01325, 0.023],[0.01075, 0.023, 0.00675, 0.02],[0.00525, 0.022, 0.0045, 0.016],
-                [0.00225, 0.019, 0.0025, 0.016],[0.005, 0.023, 0.002, 0.016],[0.001, 0.017, 0.0015, 0.015],
-                [0.00025, 0.02, 0.00125, 0.013],[0.00025, 0.02, 0.00125, 0.014],[0.00025, 0.014, 0.00125, 0.016],
-                [0.0, 0.013, 0.001, 0.017],[0.0, 0.013, 0.00075, 0.016]]
+
+error_count_from_one = [[0.0225, 0.03, 0.01325, 0.023],[0.01075, 0.023, 0.00675, 0.02],[0.00525, 0.022, 0.0045, 0.016],
+                        [0.00225, 0.019, 0.0025, 0.016],[0.005, 0.023, 0.002, 0.016],[0.001, 0.017, 0.0015, 0.015],
+                        [0.00025, 0.02, 0.00125, 0.013],[0.00025, 0.02, 0.00125, 0.014],[0.00025, 0.014, 0.00125, 0.016],
+                        [0.0, 0.013, 0.001, 0.017],[0.0, 0.013, 0.00075, 0.016]]
+
+
+error_train = [0]*11
+error_validation = [0]*11
+error_train_average = [0]*11
+error_validation_average = [0]*11
+average_error_perceptron = [0] * 11
+average_error_averaged_perceptron = [0] * 11
+
+for i,item in enumerate(error_count_from_one):
+    error_train[i] = item[0]
+    error_validation[i] = item[1]
+    error_train_average[i] = item[2]
+    error_validation_average[i] = item[3]
+    average_error_perceptron[i] = [(item[0]+item[1])/2]
+    average_error_averaged_perceptron[i] = (item[2]+item[3])/2
+x = np.arange(1,12,1)
+y1 = error_train
+y2 = error_validation
+y3 = error_train_average
+y4 = error_validation_average
+y5 = average_error_perceptron
+y6 = average_error_averaged_perceptron
+
+plt.plot(x, y1, color = "blue",linestyle="-",  marker ="^", label = "train error")
+plt.plot(x, y2, color = "orange",linestyle="-",  marker = "s", label = "validation error")
+plt.plot(x, y3, color = "green",linestyle="-",  marker ="^",label = "average train error")
+plt.plot(x, y4, color = "red",linestyle="-",  marker = "s", label = "average validation error")
+plt.plot(x, y5, color = "black",linestyle="-",  marker = "*")
+plt.plot(x, y6, color = "black",linestyle="-",  marker = "+")
+
+plt.legend(loc='upper right')
+plt.xlabel("x")
+plt.ylabel("error")
+plt.show()
+
+
+
 """
 question nine:
 Combine the training set and the validation set and learn using the best of the configurations previously found. 
